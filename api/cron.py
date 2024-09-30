@@ -1,7 +1,6 @@
 import sys
 import os
 from pathlib import Path
-from http.server import BaseHTTPRequestHandler
 
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
@@ -23,9 +22,15 @@ def run_crawlers():
         except Exception as e:
             print(f"Error during crawl: {str(e)}")
 
-def handler(event, context):
-    run_crawlers()
-    return {
-        'statusCode': 200,
-        'body': 'Crawling completed'
-    }
+def handler(request):
+    if request.method == "GET":
+        run_crawlers()
+        return {
+            "statusCode": 200,
+            "body": "Crawling completed"
+        }
+    else:
+        return {
+            "statusCode": 405,
+            "body": "Method not allowed"
+        }
