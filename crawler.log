@@ -1,0 +1,23 @@
+2024-09-30 22:39:12,828 - crawler - INFO - Starting crawler application
+2024-09-30 22:39:12,829 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:39:12,839 - crawler - ERROR - Error during crawl for 마이테레사: 'MytheresaCrawler' object has no attribute 'supabase'
+2024-09-30 22:39:54,657 - crawler - INFO - Starting crawler application
+2024-09-30 22:39:55,542 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:39:55,542 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:39:56,144 - crawler - ERROR - Error during crawl for 마이테레사: {'code': 'PGRST100', 'details': 'unexpected "F" expecting "not" or operator (eq, gt, ...)', 'hint': None, 'message': '"failed to parse filter (Filters.EQ.마이테레사)" (line 1, column 1)'}
+2024-09-30 22:39:56,144 - crawler - ERROR - Error during crawl for 마이테레사: {'code': 'PGRST100', 'details': 'unexpected "F" expecting "not" or operator (eq, gt, ...)', 'hint': None, 'message': '"failed to parse filter (Filters.EQ.마이테레사)" (line 1, column 1)'}
+2024-09-30 22:40:37,921 - crawler - INFO - Starting crawler application
+2024-09-30 22:40:38,809 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:40:38,809 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:40:39,358 - crawler - ERROR - Error during crawl for 마이테레사: {'code': 'PGRST100', 'details': 'unexpected "F" expecting "not" or operator (eq, gt, ...)', 'hint': None, 'message': '"failed to parse filter (Filters.EQ.마이테레사)" (line 1, column 1)'}
+2024-09-30 22:40:39,358 - crawler - ERROR - Error during crawl for 마이테레사: {'code': 'PGRST100', 'details': 'unexpected "F" expecting "not" or operator (eq, gt, ...)', 'hint': None, 'message': '"failed to parse filter (Filters.EQ.마이테레사)" (line 1, column 1)'}
+2024-09-30 22:41:20,945 - crawler - INFO - Starting crawler application
+2024-09-30 22:41:22,087 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:41:22,087 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:41:22,380 - crawler - ERROR - Error during crawl for 마이테레사: {'code': 'PGRST100', 'details': 'unexpected "F" expecting "not" or operator (eq, gt, ...)', 'hint': None, 'message': '"failed to parse filter (Filters.EQ.2e33b667-8e9a-466e-969e-7592f9822459)" (line 1, column 1)'}
+2024-09-30 22:41:22,380 - crawler - ERROR - Error during crawl for 마이테레사: {'code': 'PGRST100', 'details': 'unexpected "F" expecting "not" or operator (eq, gt, ...)', 'hint': None, 'message': '"failed to parse filter (Filters.EQ.2e33b667-8e9a-466e-969e-7592f9822459)" (line 1, column 1)'}
+2024-09-30 22:41:56,949 - crawler - INFO - Starting crawler application
+2024-09-30 22:41:58,136 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:41:58,136 - crawler - INFO - Starting crawl for 마이테레사
+2024-09-30 22:42:08,037 - crawler - ERROR - Error during crawl for 마이테레사: {'code': '23502', 'details': None, 'hint': None, 'message': 'null value in column "price" of relation "price_crawls" violates not-null constraint'}
+2024-09-30 22:42:08,037 - crawler - ERROR - Error during crawl for 마이테레사: {'code': '23502', 'details': None, 'hint': None, 'message': 'null value in column "price" of relation "price_crawls" violates not-null constraint'}
