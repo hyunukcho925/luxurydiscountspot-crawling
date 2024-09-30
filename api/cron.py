@@ -21,8 +21,8 @@ db_manager = DBManager(config)
 
 async def run_crawler(crawler):
     try:
-        results = await crawler.crawl()
-        await db_manager.save_crawl_results(results)
+        results = await asyncio.to_thread(crawler.crawl)
+        await asyncio.to_thread(db_manager.save_crawl_results, results)
     except Exception as e:
         print(f"Error during crawl: {str(e)}")
 
@@ -32,6 +32,12 @@ async def run_crawlers():
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        if self.path == '/api/cron':
+            self.handle_cron()
+        else:
+            self.send_error(404, "Not Found")
+
+    def handle_cron(self):
         try:
             asyncio.run(run_crawlers())
             self.send_response(200)
