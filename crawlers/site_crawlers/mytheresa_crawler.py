@@ -8,7 +8,7 @@ class MytheresaCrawler(BaseCrawler):
         self.site_id = "2e33b667-8e9a-466e-969e-7592f9822459"
         super().__init__(config)
 
-    def crawl(self):
+    async def crawl(self):
         response = self.supabase.table('crawl_targets') \
             .select('id, site_id, site_product_url, is_active') \
             .execute()

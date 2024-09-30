@@ -16,19 +16,21 @@ except ImportError as e:
     print(f"Error importing modules: {str(e)}")
     sys.exit(1)
 
-config = Config()
-db_manager = DBManager(config)
-
-async def run_crawler(crawler):
-    try:
-        results = await asyncio.to_thread(crawler.crawl)
-        await asyncio.to_thread(db_manager.save_crawl_results, results)
-    except Exception as e:
-        print(f"Error during crawl: {str(e)}")
+async def initialize():
+    global config, db_manager
+    config = Config()
+    await config.initialize_supabase()
+    db_manager = DBManager(config)
 
 async def run_crawlers():
+    await initialize()
     crawlers = [MytheresaCrawler(config)]
-    await asyncio.gather(*[run_crawler(crawler) for crawler in crawlers])
+    for crawler in crawlers:
+        try:
+            results = await crawler.crawl()
+            await db_manager.save_crawl_results(results)
+        except Exception as e:
+            print(f"Error during crawl: {str(e)}")
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):

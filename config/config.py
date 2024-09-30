@@ -9,10 +9,8 @@ class Config:
         self.SUPABASE_KEY = os.getenv('SUPABASE_KEY')
         self.supabase: Client = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
 
-    def initialize_supabase(self) -> Client:
-        if not self.SUPABASE_URL or not self.SUPABASE_KEY:
-            raise ValueError("Supabase URL and key must be set in the .env file")
-        return create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
+    async def initialize_supabase(self):
+        self.supabase = await create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
 
     def __str__(self):
         return f"Config(SUPABASE_URL={self.SUPABASE_URL}, SUPABASE_KEY={'*' * len(self.SUPABASE_KEY)})"

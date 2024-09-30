@@ -7,11 +7,11 @@ class DBManager:
         self.supabase = config.supabase
         self.logger = logging.getLogger('crawler')
 
-    def save_crawl_results(self, results):
+    async def save_crawl_results(self, results):
         for result in results:
             try:
-                self.save_price_crawl(result)
-                self.update_crawl_target(result['crawl_target_id'])
+                await self.save_price_crawl(result)
+                await self.update_crawl_target(result['crawl_target_id'])
             except Exception as e:
                 self.logger.error(f"Error saving crawl result: {str(e)}")
 
