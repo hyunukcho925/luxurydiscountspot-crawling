@@ -3,8 +3,7 @@
   "builds": [
     {
       "src": "api/cron.py",
-      "use": "@vercel/python",
-      "config": { "buildCommand": "vercel-build.sh" }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -13,12 +12,6 @@
       "dest": "api/cron.py"
     }
   ],
-  "functions": {
-    "api/cron.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "crons": [
     {
       "path": "/api/cron",
