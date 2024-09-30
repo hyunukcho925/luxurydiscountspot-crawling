@@ -2,58 +2,53 @@ import sys
 import os
 from pathlib import Path
 import asyncio
+from config.config import Config
+from database.db_manager import DBManager
+from crawlers.site_crawlers import get_all_crawlers
+from utils.logger import setup_logger
+import supabase
 
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
-try:
-    from config.config import Config
-    from database.db_manager import DBManager
-    from crawlers.site_crawlers.mytheresa_crawler import MytheresaCrawler
-except ImportError as e:
-    print(f"Error importing modules: {str(e)}")
-    sys.exit(1)
-
+logger = setup_logger()
 config = Config()
 db_manager = DBManager(config)
 
+logger.debug(f"Supabase version: {supabase.__version__}")
+logger.debug(f"Config: {config}")
+logger.debug(f"Supabase client: {config.supabase}")
+
 async def run_crawlers():
-    crawlers = [MytheresaCrawler(config)]
+    crawlers = get_all_crawlers(config)
     for crawler in crawlers:
         try:
+            logger.info(f"Starting crawl for crawler: {crawler.__class__.__name__}")
             results = await crawler.crawl()
             await db_manager.save_crawl_results(results)
+            logger.info(f"Completed crawl for crawler: {crawler.__class__.__name__}")
         except Exception as e:
-            print(f"Error during crawl: {str(e)}")
+            logger.error(f"Error during crawl for crawler: {crawler.__class__.__name__}: {str(e)}")
+            logger.exception("Exception details:")
 
-def handler(event, context):
+async def main(event, context):
     try:
-        asyncio.run(run_crawlers())
+        logger.info("Starting crawler application")
+        await run_crawlers()
         return {
             "statusCode": 200,
             "body": "Crawling completed"
         }
     except Exception as e:
-        print(f"Error in handler: {str(e)}")
+        logger.error(f"Error in handler: {str(e)}")
         return {
             "statusCode": 500,
             "body": f"Internal Server Error: {str(e)}"
         }
 
-# Vercel serverless function entry point
-from http.server import BaseHTTPRequestHandler
+def handler(event, context):
+    return asyncio.run(main(event, context))
 
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/api/cron':
-            result = handler(None, None)
-            self.send_response(result['statusCode'])
-            self.send_header('Content-type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(result['body'].encode())
-        else:
-            self.send_error(404)
-
-    def do_POST(self):
-        self.send_error(405)
+if __name__ == "__main__":
+    asyncio.run(main(None, None))
