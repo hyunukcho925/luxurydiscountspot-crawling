@@ -1,13 +1,12 @@
 import sys
 import os
 from pathlib import Path
-import asyncio
+import aiocron
 from config.config import Config
 from database.db_manager import DBManager
 from crawlers.site_crawlers import get_all_crawlers
 from utils.logger import setup_logger
 import supabase
-import http.server  # 이 줄을 파일 상단에 추가
 
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
@@ -21,6 +20,7 @@ logger.debug(f"Supabase version: {supabase.__version__}")
 logger.debug(f"Config: {config}")
 logger.debug(f"Supabase client: {config.supabase}")
 
+@aiocron.crontab('0 0 * * *')
 async def run_crawlers():
     crawlers = get_all_crawlers(config)
     for crawler in crawlers:
@@ -33,10 +33,9 @@ async def run_crawlers():
             logger.error(f"Error during crawl for crawler: {crawler.__class__.__name__}: {str(e)}")
             logger.exception("Exception details:")
 
-async def main(event, context):
+def handler(event, context):
     try:
-        logger.info("Starting crawler application")
-        await run_crawlers()
+        aiocron.run()
         return {
             "statusCode": 200,
             "body": "Crawling completed"
@@ -47,13 +46,3 @@ async def main(event, context):
             "statusCode": 500,
             "body": f"Internal Server Error: {str(e)}"
         }
-
-def vercel_handler(event, context):
-    return asyncio.run(main(event, context))
-
-# Vercel serverless function entry point
-def entrypoint(event, context):
-    return vercel_handler(event, context)
-
-if __name__ == "__main__":
-    asyncio.run(main(None, None))
