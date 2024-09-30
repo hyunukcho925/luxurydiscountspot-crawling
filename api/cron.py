@@ -47,4 +47,5 @@ async def main(event, context):
         }
 
 def handler(event, context):
-    return asyncio.run(main(event, context))
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(main(event, context))

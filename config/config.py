@@ -7,7 +7,13 @@ class Config:
         load_dotenv()
         self.SUPABASE_URL = os.getenv('SUPABASE_URL')
         self.SUPABASE_KEY = os.getenv('SUPABASE_KEY')
-        self.supabase: Client = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
+        self._supabase = None
+
+    @property
+    def supabase(self) -> Client:
+        if self._supabase is None:
+            self._supabase = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
+        return self._supabase
 
     # initialize_supabase 메서드 제거
 
