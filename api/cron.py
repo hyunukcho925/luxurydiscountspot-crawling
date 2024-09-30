@@ -1,13 +1,14 @@
-from http.server import BaseHTTPRequestHandler
 import sys
 import os
+from pathlib import Path
 
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = Path(__file__).parent.parent
+sys.path.append(str(project_root))
 
 from config.config import Config
 from database.db_manager import DBManager
-from crawlers.mytheresa_crawler import MytheresaCrawler
+from crawlers.site_crawlers.mytheresa_crawler import MytheresaCrawler
 
 config = Config()
 db_manager = DBManager(config)
