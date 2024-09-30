@@ -4,3 +4,4 @@ supabase==0.5.8
 python-dotenv==0.19.1
 schedule==1.1.0
 pytz==2021.3
+asyncio
