@@ -19,22 +19,22 @@ logger.debug(f"Supabase version: {supabase.__version__}")
 logger.debug(f"Config: {config}")
 logger.debug(f"Supabase client: {config.supabase}")
 
-async def run_crawlers():
+def run_crawlers():
     crawlers = get_all_crawlers(config)
     for crawler in crawlers:
         try:
             logger.info(f"Starting crawl for crawler: {crawler.__class__.__name__}")
-            results = await crawler.crawl()
-            await db_manager.save_crawl_results(results)
+            results = crawler.crawl()  # 비동기 호출 제거
+            db_manager.save_crawl_results(results)  # 비동기 호출 제거
             logger.info(f"Completed crawl for crawler: {crawler.__class__.__name__}")
         except Exception as e:
             logger.error(f"Error during crawl for crawler: {crawler.__class__.__name__}: {str(e)}")
             logger.exception("Exception details:")
 
-async def main(event, context):
+def handler(event, context):
     try:
         logger.info("Starting crawler application")
-        await run_crawlers()
+        run_crawlers()
         return {
             "statusCode": 200,
             "body": "Crawling completed"
@@ -45,7 +45,3 @@ async def main(event, context):
             "statusCode": 500,
             "body": f"Internal Server Error: {str(e)}"
         }
-
-def handler(event, context):
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(main(event, context))

@@ -3,5 +3,4 @@ beautifulsoup4==4.10.0
 supabase==0.5.8
 python-dotenv==0.19.1
 pytz==2021.3
-asyncio==3.4.3
-aiohttp
+aiohttp==3.8.1
