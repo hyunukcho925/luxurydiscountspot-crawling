@@ -50,5 +50,9 @@ async def main(event, context):
 def handler(event, context):
     return asyncio.run(main(event, context))
 
+# Vercel serverless function entry point
+def entrypoint(event, context):
+    return handler(event, context)
+
 if __name__ == "__main__":
     asyncio.run(main(None, None))
