@@ -23,24 +23,15 @@ def run_crawlers():
         except Exception as e:
             print(f"Error during crawl: {str(e)}")
 
-def handler(event, context):
-    run_crawlers()
-    return {
-        'statusCode': 200,
-        'body': 'Crawling completed'
-    }
-
-# Vercel이 이 파일을 직접 실행할 때 사용할 핸들러
-class VercelHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+def handler(request):
+    if request.method == "GET":
         run_crawlers()
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write('Crawling completed'.encode())
-
-# Vercel이 이 파일을 직접 실행할 때 사용할 핸들러 함수
-def vercel_handler(request, response):
-    run_crawlers()
-    response.status = 200
-    response.body = 'Crawling completed'
+        return {
+            "statusCode": 200,
+            "body": "Crawling completed"
+        }
+    else:
+        return {
+            "statusCode": 405,
+            "body": "Method not allowed"
+        }
