@@ -7,7 +7,7 @@ class Config:
         load_dotenv()
         self.SUPABASE_URL = os.getenv('SUPABASE_URL')
         self.SUPABASE_KEY = os.getenv('SUPABASE_KEY')
-        self.supabase = self.initialize_supabase()
+        self.supabase: Client = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
 
     def initialize_supabase(self) -> Client:
         if not self.SUPABASE_URL or not self.SUPABASE_KEY:

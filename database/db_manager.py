@@ -15,46 +15,38 @@ class DBManager:
             except Exception as e:
                 self.logger.error(f"Error saving crawl result: {str(e)}")
 
-    def save_price_crawl(self, result):
+    async def save_price_crawl(self, result):
         try:
             data = {
-                'crawl_target_id': result['crawl_target_id'],
+                'crawl_target_id': str(result['crawl_target_id']),  # UUID를 문자열로 변환
                 'price': result['price'],
-                'currency': 'KRW',
-                'is_in_stock': result['is_successful'],
-                'crawled_at': datetime.now().isoformat()
+                'currency': result.get('currency', 'Unknown'),
+                'crawled_at': result['crawled_at']
             }
-            response = self.supabase.table('price_crawls').insert(data).execute()
-
-            if response.data:
+            response = await self.supabase.table('price_crawls').insert(data).execute()
+            
+            if response and response.data:
                 self.logger.info(f"Successfully saved price crawl for target {result['crawl_target_id']}")
             else:
                 self.logger.warning(f"No data returned when saving price crawl for target {result['crawl_target_id']}")
-
+            
             self.logger.debug(f"Supabase response: {response}")
-
-        except APIError as e:
-            self.logger.error(f"Supabase API Error in save_price_crawl: {str(e)}")
-            self.logger.error(f"Error details: {e.details}")
-            self.logger.error(f"Error message: {e.message}")
         except Exception as e:
             self.logger.error(f"Unexpected error in save_price_crawl: {str(e)}")
+            self.logger.exception("Exception details:")
 
-    def update_crawl_target(self, crawl_target_id):
+    async def update_crawl_target(self, crawl_target_id):
         try:
             data = {'last_crawled_at': datetime.now().isoformat()}
-            response = self.supabase.table('crawl_targets').update(data).eq('id', crawl_target_id).execute()
+            response = await self.supabase.table('crawl_targets').update(data).eq('id', str(crawl_target_id)).execute()
 
-            if response.data:
+            if response and response.data:
                 self.logger.info(f"Successfully updated crawl target {crawl_target_id}")
             else:
                 self.logger.warning(f"No data returned when updating crawl target {crawl_target_id}")
 
             self.logger.debug(f"Supabase response: {response}")
 
-        except APIError as e:
-            self.logger.error(f"Supabase API Error in update_crawl_target: {str(e)}")
-            self.logger.error(f"Error details: {e.details}")
-            self.logger.error(f"Error message: {e.message}")
         except Exception as e:
-            self.logger.error(f"Unexpected error in update_crawl_target: {str(e)}")
+            self.logger.error(f"Supabase API Error in update_crawl_target: {str(e)}")
+            self.logger.exception("Exception details:")
