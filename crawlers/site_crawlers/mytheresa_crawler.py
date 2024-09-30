@@ -2,6 +2,7 @@ from crawlers.base_crawler import BaseCrawler
 from bs4 import BeautifulSoup
 import re
 from utils.currency_converter import currency_converter
+import aiohttp
 
 class MytheresaCrawler(BaseCrawler):
     def __init__(self, config):
@@ -21,7 +22,7 @@ class MytheresaCrawler(BaseCrawler):
                 url = target['site_product_url']
                 try:
                     self.logger.debug(f"Crawling URL: {url}")
-                    soup = self.get_soup(url)
+                    soup = await self.get_soup(url)
                     price = self.extract_price(soup)
                     
                     results.append({
@@ -41,6 +42,12 @@ class MytheresaCrawler(BaseCrawler):
                     })
 
         return results
+
+    async def get_soup(self, url):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                html = await response.text()
+                return BeautifulSoup(html, 'html.parser')
 
     def extract_price(self, soup):
         price_element = soup.find('span', class_='pricing__prices__price')

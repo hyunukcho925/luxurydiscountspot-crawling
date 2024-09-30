@@ -10,6 +10,7 @@ class DBManager:
     async def save_crawl_results(self, results):
         for result in results:
             try:
+                result['crawled_at'] = datetime.now().isoformat()  # 이 줄을 추가
                 await self.save_price_crawl(result)
                 await self.update_crawl_target(result['crawl_target_id'])
             except Exception as e:

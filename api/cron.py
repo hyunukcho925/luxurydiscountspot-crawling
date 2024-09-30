@@ -1,7 +1,6 @@
 import sys
-import os
 from pathlib import Path
-import aiocron
+import asyncio
 from config.config import Config
 from database.db_manager import DBManager
 from crawlers.site_crawlers import get_all_crawlers
@@ -20,7 +19,6 @@ logger.debug(f"Supabase version: {supabase.__version__}")
 logger.debug(f"Config: {config}")
 logger.debug(f"Supabase client: {config.supabase}")
 
-@aiocron.crontab('0 0 * * *')
 async def run_crawlers():
     crawlers = get_all_crawlers(config)
     for crawler in crawlers:
@@ -33,9 +31,10 @@ async def run_crawlers():
             logger.error(f"Error during crawl for crawler: {crawler.__class__.__name__}: {str(e)}")
             logger.exception("Exception details:")
 
-def handler(event, context):
+async def main(event, context):
     try:
-        aiocron.run()
+        logger.info("Starting crawler application")
+        await run_crawlers()
         return {
             "statusCode": 200,
             "body": "Crawling completed"
@@ -46,3 +45,6 @@ def handler(event, context):
             "statusCode": 500,
             "body": f"Internal Server Error: {str(e)}"
         }
+
+def handler(event, context):
+    return asyncio.run(main(event, context))
