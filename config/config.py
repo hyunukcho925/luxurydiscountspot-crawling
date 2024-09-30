@@ -9,8 +9,7 @@ class Config:
         self.SUPABASE_KEY = os.getenv('SUPABASE_KEY')
         self.supabase: Client = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
 
-    async def initialize_supabase(self):
-        self.supabase = await create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
+    # initialize_supabase 메서드 제거
 
     def __str__(self):
         return f"Config(SUPABASE_URL={self.SUPABASE_URL}, SUPABASE_KEY={'*' * len(self.SUPABASE_KEY)})"

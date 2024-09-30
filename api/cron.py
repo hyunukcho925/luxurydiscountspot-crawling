@@ -1,4 +1,3 @@
-from http.server import BaseHTTPRequestHandler
 import sys
 import os
 from pathlib import Path
@@ -16,14 +15,10 @@ except ImportError as e:
     print(f"Error importing modules: {str(e)}")
     sys.exit(1)
 
-async def initialize():
-    global config, db_manager
-    config = Config()
-    await config.initialize_supabase()
-    db_manager = DBManager(config)
+config = Config()
+db_manager = DBManager(config)
 
 async def run_crawlers():
-    await initialize()
     crawlers = [MytheresaCrawler(config)]
     for crawler in crawlers:
         try:
@@ -32,40 +27,33 @@ async def run_crawlers():
         except Exception as e:
             print(f"Error during crawl: {str(e)}")
 
+def handler(event, context):
+    try:
+        asyncio.run(run_crawlers())
+        return {
+            "statusCode": 200,
+            "body": "Crawling completed"
+        }
+    except Exception as e:
+        print(f"Error in handler: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": f"Internal Server Error: {str(e)}"
+        }
+
+# Vercel serverless function entry point
+from http.server import BaseHTTPRequestHandler
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/api/cron':
-            self.handle_cron()
-        else:
-            self.send_error(404, "Not Found")
-
-    def handle_cron(self):
-        try:
-            asyncio.run(run_crawlers())
-            self.send_response(200)
+            result = handler(None, None)
+            self.send_response(result['statusCode'])
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
-            self.wfile.write(b"Crawling completed")
-        except Exception as e:
-            self.send_error(500, f"Internal Server Error: {str(e)}")
+            self.wfile.write(result['body'].encode())
+        else:
+            self.send_error(404)
 
     def do_POST(self):
-        self.send_response(405)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b"Method not allowed")
-
-def main():
-    try:
-        from http.server import HTTPServer
-        port = int(os.environ.get('PORT', 8000))
-        server_address = ('', port)
-        httpd = HTTPServer(server_address, Handler)
-        print(f"Server running on port {port}")
-        httpd.serve_forever()
-    except Exception as e:
-        print(f"Error starting server: {str(e)}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+        self.send_error(405)
