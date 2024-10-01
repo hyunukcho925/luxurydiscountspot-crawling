@@ -1,10 +1,8 @@
 import os
-from dotenv import load_dotenv
 from supabase import create_client, Client
 
 class Config:
     def __init__(self):
-        load_dotenv()
         self.SUPABASE_URL = os.getenv('SUPABASE_URL')
         self.SUPABASE_KEY = os.getenv('SUPABASE_KEY')
         self._supabase = None
@@ -14,8 +12,6 @@ class Config:
         if self._supabase is None:
             self._supabase = create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
         return self._supabase
-
-    # initialize_supabase 메서드 제거
 
     def __str__(self):
         return f"Config(SUPABASE_URL={self.SUPABASE_URL}, SUPABASE_KEY={'*' * len(self.SUPABASE_KEY)})"
