@@ -24,12 +24,11 @@ async def run_crawlers():
     for crawler in crawlers:
         try:
             logger.info(f"Starting crawl for crawler: {crawler.__class__.__name__}")
-            results = await crawler.crawl()  # 비동기 호출로 변경
-            await db_manager.save_crawl_results(results)  # 비동기 호출로 변경
+            results = await crawler.crawl()
+            await db_manager.save_crawl_results(results)
             logger.info(f"Completed crawl for crawler: {crawler.__class__.__name__}")
         except Exception as e:
-            logger.error(f"Error during crawl for crawler: {crawler.__class__.__name__}: {str(e)}")
-            logger.exception("Exception details:")
+            logger.exception(f"Error during crawl for crawler: {crawler.__class__.__name__}")
 
 async def async_handler(event, context):
     try:
@@ -40,7 +39,7 @@ async def async_handler(event, context):
             "body": "Crawling completed"
         }
     except Exception as e:
-        logger.error(f"Error in handler: {str(e)}")
+        logger.exception("Error in handler")
         return {
             "statusCode": 500,
             "body": f"Internal Server Error: {str(e)}"

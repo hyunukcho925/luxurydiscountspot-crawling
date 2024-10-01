@@ -14,14 +14,14 @@ class DBManager:
             tasks.append(self.save_price_crawl(result))
             tasks.append(self.update_crawl_target(result['crawl_target_id']))
         
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     async def save_price_crawl(self, result):
         try:
             data = {
                 'crawl_target_id': str(result['crawl_target_id']),
                 'price': result['price'],
-                'currency': result.get('currency', 'KRW'),  # 'Unknown' 대신 'KRW' 사용
+                'currency': result.get('currency', 'KRW'),
                 'crawled_at': result['crawled_at']
             }
             response = await self.supabase.table('price_crawls').insert(data).execute()
@@ -33,8 +33,7 @@ class DBManager:
             
             self.logger.debug(f"Supabase response: {response}")
         except Exception as e:
-            self.logger.error(f"Unexpected error in save_price_crawl for target {result['crawl_target_id']}: {str(e)}")
-            self.logger.exception("Exception details:")
+            self.logger.exception(f"Unexpected error in save_price_crawl for target {result['crawl_target_id']}")
 
     async def update_crawl_target(self, crawl_target_id):
         try:
@@ -47,10 +46,8 @@ class DBManager:
                 self.logger.warning(f"No data returned when updating crawl target {crawl_target_id}")
 
             self.logger.debug(f"Supabase response: {response}")
-
         except Exception as e:
-            self.logger.error(f"Supabase API Error in update_crawl_target for target {crawl_target_id}: {str(e)}")
-            self.logger.exception("Exception details:")
+            self.logger.exception(f"Supabase API Error in update_crawl_target for target {crawl_target_id}")
 
     async def batch_insert_price_crawls(self, results):
         try:
@@ -70,5 +67,4 @@ class DBManager:
 
             self.logger.debug(f"Supabase response: {response}")
         except Exception as e:
-            self.logger.error(f"Unexpected error in batch_insert_price_crawls: {str(e)}")
-            self.logger.exception("Exception details:")
+            self.logger.exception("Unexpected error in batch_insert_price_crawls")
