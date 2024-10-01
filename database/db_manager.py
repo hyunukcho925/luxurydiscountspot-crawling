@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from postgrest.exceptions import APIError
+import asyncio
 
 class DBManager:
     def __init__(self, config):
@@ -8,20 +8,20 @@ class DBManager:
         self.logger = logging.getLogger('crawler')
 
     async def save_crawl_results(self, results):
+        tasks = []
         for result in results:
-            try:
-                result['crawled_at'] = datetime.now().isoformat()  # 이 줄을 추가
-                await self.save_price_crawl(result)
-                await self.update_crawl_target(result['crawl_target_id'])
-            except Exception as e:
-                self.logger.error(f"Error saving crawl result: {str(e)}")
+            result['crawled_at'] = datetime.now().isoformat()
+            tasks.append(self.save_price_crawl(result))
+            tasks.append(self.update_crawl_target(result['crawl_target_id']))
+        
+        await asyncio.gather(*tasks)
 
     async def save_price_crawl(self, result):
         try:
             data = {
-                'crawl_target_id': str(result['crawl_target_id']),  # UUID를 문자열로 변환
+                'crawl_target_id': str(result['crawl_target_id']),
                 'price': result['price'],
-                'currency': result.get('currency', 'Unknown'),
+                'currency': result.get('currency', 'KRW'),  # 'Unknown' 대신 'KRW' 사용
                 'crawled_at': result['crawled_at']
             }
             response = await self.supabase.table('price_crawls').insert(data).execute()
@@ -33,7 +33,7 @@ class DBManager:
             
             self.logger.debug(f"Supabase response: {response}")
         except Exception as e:
-            self.logger.error(f"Unexpected error in save_price_crawl: {str(e)}")
+            self.logger.error(f"Unexpected error in save_price_crawl for target {result['crawl_target_id']}: {str(e)}")
             self.logger.exception("Exception details:")
 
     async def update_crawl_target(self, crawl_target_id):
@@ -49,5 +49,26 @@ class DBManager:
             self.logger.debug(f"Supabase response: {response}")
 
         except Exception as e:
-            self.logger.error(f"Supabase API Error in update_crawl_target: {str(e)}")
+            self.logger.error(f"Supabase API Error in update_crawl_target for target {crawl_target_id}: {str(e)}")
+            self.logger.exception("Exception details:")
+
+    async def batch_insert_price_crawls(self, results):
+        try:
+            data = [{
+                'crawl_target_id': str(result['crawl_target_id']),
+                'price': result['price'],
+                'currency': result.get('currency', 'KRW'),
+                'crawled_at': result['crawled_at']
+            } for result in results]
+
+            response = await self.supabase.table('price_crawls').insert(data).execute()
+
+            if response and response.data:
+                self.logger.info(f"Successfully batch inserted {len(data)} price crawls")
+            else:
+                self.logger.warning("No data returned when batch inserting price crawls")
+
+            self.logger.debug(f"Supabase response: {response}")
+        except Exception as e:
+            self.logger.error(f"Unexpected error in batch_insert_price_crawls: {str(e)}")
             self.logger.exception("Exception details:")

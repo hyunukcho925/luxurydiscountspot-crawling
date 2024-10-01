@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 from utils.currency_converter import currency_converter
 import httpx
+import asyncio
 
 class MytheresaCrawler(BaseCrawler):
     def __init__(self, config):
@@ -10,38 +11,39 @@ class MytheresaCrawler(BaseCrawler):
         super().__init__(config)
 
     async def crawl(self):
-        response = self.supabase.table('crawl_targets') \
+        response = await self.supabase.table('crawl_targets') \
             .select('id, site_id, site_product_url, is_active') \
+            .eq('site_id', self.site_id) \
+            .eq('is_active', True) \
             .execute()
 
         self.logger.debug(f"Supabase response: {response}")
 
-        results = []
-        for target in response.data:
-            if target['site_id'] == self.site_id and target['is_active']:
-                url = target['site_product_url']
-                try:
-                    self.logger.debug(f"Crawling URL: {url}")
-                    soup = await self.get_soup(url)
-                    price = self.extract_price(soup)
-                    
-                    results.append({
-                        'price': price,
-                        'url': url,
-                        'crawl_target_id': target['id'],
-                        'is_successful': price is not None
-                    })
-                    self.logger.debug(f"Extracted price for {url}: {price}")
-                except Exception as e:
-                    self.logger.error(f"Error crawling {url}: {str(e)}")
-                    results.append({
-                        'price': None,
-                        'url': url,
-                        'crawl_target_id': target['id'],
-                        'is_successful': False
-                    })
+        tasks = [self.crawl_single_target(target) for target in response.data]
+        results = await asyncio.gather(*tasks)
+        return [result for result in results if result is not None]
 
-        return results
+    async def crawl_single_target(self, target):
+        url = target['site_product_url']
+        try:
+            self.logger.debug(f"Crawling URL: {url}")
+            soup = await self.get_soup(url)
+            price = self.extract_price(soup)
+            
+            return {
+                'price': price,
+                'url': url,
+                'crawl_target_id': target['id'],
+                'is_successful': price is not None
+            }
+        except Exception as e:
+            self.logger.error(f"Error crawling {url}: {str(e)}")
+            return {
+                'price': None,
+                'url': url,
+                'crawl_target_id': target['id'],
+                'is_successful': False
+            }
 
     async def get_soup(self, url):
         async with httpx.AsyncClient() as client:
