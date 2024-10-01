@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
 import asyncio
-from supabase import APIError
+from supabase.lib.client_options import ClientOptions  # 이 부분 추가
+from supabase.lib.constants import PUBLIC_REST_URL
 
 class DBManager:
     def __init__(self, config):
@@ -33,10 +34,8 @@ class DBManager:
                 self.logger.warning(f"No data returned when saving price crawl for target {result['crawl_target_id']}")
             
             self.logger.debug(f"Supabase response: {response}")
-        except APIError as e:
-            self.logger.error(f"Supabase API error in save_price_crawl for target {result['crawl_target_id']}: {str(e)}")
         except Exception as e:
-            self.logger.exception(f"Unexpected error in save_price_crawl for target {result['crawl_target_id']}")
+            self.logger.error(f"Error in save_price_crawl for target {result['crawl_target_id']}: {str(e)}")
 
     async def update_crawl_target(self, crawl_target_id):
         try:

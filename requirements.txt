@@ -1,5 +1,5 @@
 beautifulsoup4==4.12.2
-supabase==1.2.0
+supabase==2.2.0
 python-dotenv==0.19.1
 pytz==2023.3
 httpx==0.24.1
