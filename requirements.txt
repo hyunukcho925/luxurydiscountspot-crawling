@@ -3,5 +3,5 @@ supabase==1.2.0
 python-dotenv==0.19.1
 pytz==2023.3
 httpx==0.24.1
-aiohttp==3.8.5
+aiohttp>=3.8.5,<4.0.0
 requests==2.31.0
